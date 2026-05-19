@@ -17,6 +17,24 @@ Android-only Expo app for [stocked](../README.md). Push notifications use Fireba
 3. Download `google-services.json` and place it at `stocked-app/google-services.json` (see `google-services.json.example` for the expected shape).
 4. Ensure **Cloud Messaging** is enabled for the project.
 
+## API setup
+
+The app talks to [stocked-gateway](../stocked-be/apps/stocked-gateway/). Copy the example env file and point it at your gateway:
+
+```bash
+cd stocked-app
+cp .env.example .env
+```
+
+| Environment | `EXPO_PUBLIC_API_URL` |
+|-------------|------------------------|
+| Android emulator | `http://10.0.2.2:3000` (default in `.env.example`) |
+| Physical device | Your machine's LAN IP, e.g. `http://192.168.1.10:3000` |
+
+Start the gateway locally (requires `DATABASE_URL` and `JWT_ACCESS_SECRET` in `stocked-be`).
+
+Sessions use secure storage: access + refresh tokens are persisted, and the app restores the session on launch via `POST /users/refresh`. Register and sign-in also send the FCM `pushToken` and `deviceId` when available.
+
 ## Install and run
 
 ```bash
@@ -51,17 +69,18 @@ If you previously installed a build without Firebase, uninstall it from the devi
 - **Quit:** high-priority data-only message → background handler log (data-only needs `android.priority: high` on the server).
 - **API 33+:** notification permission prompt on first launch.
 
-## Project structure (push)
+## Project structure
 
 | Path | Purpose |
 |------|---------|
+| `app/(auth)/` | Welcome, sign-up, and login screens (unauthenticated). |
+| `app/(app)/` | Authenticated home screen (redirect target after sign-in). |
+| `contexts/SessionContext.tsx` | Session state, token restore, sign-up/in/out. |
+| `lib/api/` | HTTP client and `/users/*` API calls. |
+| `lib/auth/storage.ts` | Secure token and user persistence. |
 | `index.js` | Registers `setBackgroundMessageHandler` before expo-router (Headless JS on Android). |
 | `lib/push/messaging.android.ts` | Permissions, token, foreground and notification-open listeners. |
 | `lib/push/backgroundHandler.android.ts` | Background/quit message handler. |
 | `hooks/usePushMessaging.android.ts` | React hook wired in `app/_layout.tsx`. |
 
 Non-Android platforms use no-op stubs (`*.ts`) so Metro and TypeScript stay compatible if web tooling is used.
-
-## Follow-up
-
-Register the FCM token with the backend `Device.pushToken` field once the API client exists.
