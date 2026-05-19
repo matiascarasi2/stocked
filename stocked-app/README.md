@@ -86,3 +86,7 @@ If you previously installed a build without Firebase, uninstall it from the devi
 | `hooks/usePushMessaging.android.ts` | React hook wired in `app/_layout.tsx`. |
 
 Non-Android platforms use no-op stubs (`*.ts`) so Metro and TypeScript stay compatible if web tooling is used.
+
+## Figma
+
+https://www.figma.com/design/rDGOAEWaTdvlTDc5vzCjwC/Stocked-?node-id=2-2&m=dev
