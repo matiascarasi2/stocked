@@ -8,10 +8,13 @@
     "scheme": "stockedapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
+    "notification": {
+      "icon": "./assets/images/android-icon-monochrome.png",
+      "color": "#E6F4FE"
     },
     "android": {
+      "package": "com.stocked.app",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -27,6 +30,9 @@
     },
     "plugins": [
       "expo-router",
+      "expo-dev-client",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
       [
         "expo-splash-screen",
         {

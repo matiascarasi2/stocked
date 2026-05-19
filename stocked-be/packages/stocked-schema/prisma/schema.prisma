@@ -1,0 +1,72 @@
+// Stocked domain schema — see repo README.md for model rationale.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String
+  tokenVersion Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  devices  Device[]
+  sessions Session[]
+  alerts   Alert[]
+}
+
+model Device {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  platform   String
+  pushToken  String?
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime?
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions Session[]
+
+  @@index([userId])
+}
+
+model Session {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  deviceId         String    @db.Uuid
+  refreshTokenHash String
+  expiresAt        DateTime
+  createdAt        DateTime  @default(now())
+  revokedAt        DateTime?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([deviceId])
+}
+
+model Alert {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @db.Uuid
+  stockSymbol     String
+  minPrice        Decimal?  @db.Decimal(18, 4)
+  maxPrice        Decimal?  @db.Decimal(18, 4)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastTriggeredAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([stockSymbol, isActive])
+  // Enforce at least one bound and minPrice <= maxPrice in application code
+  // (Prisma schema does not support CHECK constraints yet).
+}
