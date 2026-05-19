@@ -29,7 +29,16 @@ pnpm --filter @stocked/schema db:migrate
 cp apps/stocked-gateway/.env.example apps/stocked-gateway/.env
 ```
 
-Set `DATABASE_URL` in `packages/stocked-schema/.env`. The gateway only needs `PORT` in `apps/stocked-gateway/.env`.
+Set `DATABASE_URL` in `packages/stocked-schema/.env`. Set `FINNHUB_API_KEY` and `FMP_API_KEY` (and optionally `PORT`) in `apps/stocked-gateway/.env`.
+
+## Market data providers
+
+The gateway uses **Finnhub** and **FMP** together—not interchangeably:
+
+- **Finnhub (free):** US symbol search, symbol directory, and real-time quotes. Used for discovery and (planned) alert price checks via `/quote`.
+- **FMP (free Basic):** Daily OHLCV history for stock charts via `GET /stocks/:symbol/chart`. Finnhub’s candle endpoint requires a paid market-data subscription, so charts are sourced from FMP instead.
+
+Both keys are required in `apps/stocked-gateway/.env`. See [gateway README](apps/stocked-gateway/README.md) for the chart endpoint and caching notes.
 
 ## Scripts
 

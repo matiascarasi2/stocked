@@ -13,4 +13,6 @@ export const env = {
   ),
   jwtAccessTtlSeconds: Number(process.env.JWT_ACCESS_TTL_SECONDS ?? 900),
   refreshTokenTtlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30),
+  finnhubApiKey: requireEnv("FINNHUB_API_KEY", process.env.FINNHUB_API_KEY),
+  fmpApiKey: requireEnv("FMP_API_KEY", process.env.FMP_API_KEY),
 };

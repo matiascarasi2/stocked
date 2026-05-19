@@ -1,6 +1,6 @@
 # stocked
 
-Mobile app for monitoring stocks using [Finnhub](https://finnhub.io/) Stock APIs.
+Mobile app for monitoring US stocks. Market data is fetched through the [stocked-gateway](stocked-be/apps/stocked-gateway/) API, which uses **two providers** on purpose (see [Market data providers](#market-data-providers) below).
 
 ## Domain model
 
@@ -95,3 +95,17 @@ Decisions and caveats to settle before implementing the schema.
 
 - Clarify one active session per device (upsert on login) vs session history.
 - Finnhub quotes stay external; a worker polls prices and matches `Alert` rows. A `PriceSnapshot` cache table is optional later.
+
+## Market data providers
+
+Stocked does not use a single vendor for everything. The gateway splits responsibilities by what each provider offers on a **free** tier:
+
+| Concern | Provider | Why |
+| --- | --- | --- |
+| Symbol search, US ticker list, stock metadata | [Finnhub](https://finnhub.io/) | Already integrated; free tier includes `/search`, `/stock/symbol`, and `/quote` for US symbols. |
+| Price alerts (current quote polling) | Finnhub | `/quote` fits alert matching without a paid market-data plan. |
+| Historical chart OHLCV (line charts) | [Financial Modeling Prep (FMP)](https://site.financialmodelingprep.com/) | Finnhub’s `/stock/candle` endpoint is **not** on the free plan ([official note](https://github.com/finnhubio/Finnhub-API/issues/546)); FMP’s free Basic tier includes daily end-of-day history via `historical-price-eod/full`. |
+
+The mobile app only talks to the gateway. API keys for Finnhub and FMP live in `stocked-be/apps/stocked-gateway/.env`, never in the client.
+
+Chart responses are cached on the server (1 hour per symbol/range) to stay within FMP’s free quota (250 requests/day). For a published consumer app, review each vendor’s display/redistribution terms (especially FMP).

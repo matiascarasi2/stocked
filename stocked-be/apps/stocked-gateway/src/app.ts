@@ -1,6 +1,8 @@
 import cors from "cors";
 import express, { type Express } from "express";
+import { createAlertsRoutes } from "./modules/alerts/alerts.routes.js";
 import { createHealthRoutes } from "./modules/health/health.routes.js";
+import { createStocksRoutes } from "./modules/stocks/stocks.routes.js";
 import { createUsersRoutes } from "./modules/users/users.routes.js";
 
 export function createApp(): Express {
@@ -11,6 +13,8 @@ export function createApp(): Express {
 
   app.use("/health", createHealthRoutes());
   app.use("/users", createUsersRoutes());
+  app.use("/stocks", createStocksRoutes());
+  app.use("/alerts", createAlertsRoutes());
 
   app.use(
     (

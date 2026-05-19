@@ -1,3 +1,29 @@
+export type StockQuote = {
+  id: string;
+  symbol: string;
+  name: string;
+  price?: number;
+  change?: number;
+  changePercent?: number;
+};
+
+export type ChartRange = "1M" | "3M" | "6M" | "1Y";
+
+export type StockChartPoint = {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+};
+
+export type StockChart = {
+  symbol: string;
+  range: ChartRange;
+  points: StockChartPoint[];
+};
+
 export type AuthUser = {
   id: string;
   email: string;
@@ -27,6 +53,29 @@ export type RegisterSignInBody = {
   platform: string;
   deviceId?: string;
   pushToken?: string;
+};
+
+export type Alert = {
+  id: string;
+  stockSymbol: string;
+  minPrice: number | null;
+  maxPrice: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  lastTriggeredAt: string | null;
+};
+
+export type CreateAlertBody = {
+  stockSymbol: string;
+  minPrice: number | null;
+  maxPrice: number | null;
+};
+
+export type UpdateAlertBody = {
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  isActive?: boolean;
 };
 
 export class ApiError extends Error {

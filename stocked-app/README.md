@@ -31,7 +31,9 @@ cp .env.example .env
 | Android emulator | `http://10.0.2.2:3000` (default in `.env.example`) |
 | Physical device | Your machine's LAN IP, e.g. `http://192.168.1.10:3000` |
 
-Start the gateway locally (requires `DATABASE_URL` and `JWT_ACCESS_SECRET` in `stocked-be`).
+Start the gateway locally (requires `DATABASE_URL`, `JWT_ACCESS_SECRET`, `FINNHUB_API_KEY`, and `FMP_API_KEY` in `stocked-be`).
+
+Stock detail charts are loaded from the gateway (`GET /stocks/:symbol/chart`), which uses **FMP** for historical prices. Search and quotes use **Finnhub** on the free tier—Finnhub does not expose candle/OHLC history without a paid plan, so charts are intentionally backed by a second provider. See the root [README](../README.md#market-data-providers).
 
 Sessions use secure storage: access + refresh tokens are persisted, and the app restores the session on launch via `POST /users/refresh`. Register and sign-in also send the FCM `pushToken` and `deviceId` when available.
 

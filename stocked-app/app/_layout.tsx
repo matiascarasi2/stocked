@@ -11,6 +11,7 @@ import { StatusBar } from "react-native";
 import { SessionGate } from "@/components/SessionGate";
 import { SessionProvider, useSession } from "@/contexts/SessionContext";
 import { usePushMessaging } from "@/hooks/usePushMessaging";
+import { QueryProvider } from "@/providers/QueryProvider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,7 +50,9 @@ export default function RootLayout() {
 
   return (
     <SessionProvider>
-      <RootNavigation />
+      <QueryProvider>
+        <RootNavigation />
+      </QueryProvider>
     </SessionProvider>
   );
 }

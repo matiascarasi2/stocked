@@ -21,16 +21,19 @@ export function Button({
   label,
   variant = "primary",
   style,
+  disabled,
   ...props
 }: ButtonProps) {
   const isPrimary = variant === "primary";
 
   return (
     <Pressable
+      disabled={disabled}
       style={({ pressed }) => [
         styles.base,
         isPrimary ? styles.primary : styles.outline,
-        pressed && styles.pressed,
+        disabled && styles.disabled,
+        pressed && !disabled && styles.pressed,
         style,
       ]}
       {...props}
@@ -64,5 +67,8 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.85,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });
