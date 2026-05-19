@@ -7,9 +7,14 @@ export type StockChartDataItem = {
   date: string;
 };
 
+export type ChartXAxisTick = {
+  index: number;
+  label: string;
+};
+
 export type GiftedChartData = {
   data: StockChartDataItem[];
-  xAxisLabelTexts: string[];
+  xAxisTicks: ChartXAxisTick[];
 };
 
 function formatAxisDate(dateStr: string): string {
@@ -17,9 +22,11 @@ function formatAxisDate(dateStr: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function formatShortAxisDate(dateStr: string): string {
-  const date = new Date(`${dateStr}T00:00:00`);
-  return `${date.getMonth() + 1}/${date.getDate()}`;
+export function getChartPlotWidth(
+  chartWidth: number,
+  yAxisLabelWidth: number,
+): number {
+  return Math.max(chartWidth - yAxisLabelWidth, 0);
 }
 
 function pickLabelIndices(length: number, count: number): Set<number> {
@@ -48,11 +55,14 @@ export function toGiftedChartData(points: StockChartPoint[]): GiftedChartData {
     date: point.date,
   }));
 
-  const xAxisLabelTexts = points.map((point, index) =>
-    labelIndices.has(index) ? formatShortAxisDate(point.date) : "",
-  );
+  const xAxisTicks = [...labelIndices]
+    .sort((a, b) => a - b)
+    .map((index) => ({
+      index,
+      label: formatAxisDate(points[index]!.date),
+    }));
 
-  return { data, xAxisLabelTexts };
+  return { data, xAxisTicks };
 }
 
 export { formatAxisDate };

@@ -3,9 +3,14 @@ import { StyleSheet, View } from "react-native";
 import { LineChart, yAxisSides } from "react-native-gifted-charts";
 
 import { ChartTooltip } from "@/components/molecules/ChartTooltip";
+import { ChartXAxis } from "@/components/molecules/ChartXAxis";
 import { colors, typography } from "@/constants/theme";
 import type { StockChartPoint } from "@/lib/api/types";
-import { toGiftedChartData, type StockChartDataItem } from "@/lib/stocks/chartData";
+import {
+  getChartPlotWidth,
+  toGiftedChartData,
+  type StockChartDataItem,
+} from "@/lib/stocks/chartData";
 import { formatChartYAxis } from "@/lib/stocks/formatPrice";
 
 const CHART_HEIGHT = 500;
@@ -17,10 +22,11 @@ type StockLineChartProps = {
 };
 
 export function StockLineChart({ points, width }: StockLineChartProps) {
-  const { data, xAxisLabelTexts } = useMemo(
+  const { data, xAxisTicks } = useMemo(
     () => toGiftedChartData(points),
     [points],
   );
+  const plotWidth = getChartPlotWidth(width, Y_AXIS_LABEL_WIDTH);
 
   const pointerConfig = useMemo(
     () => ({
@@ -83,11 +89,13 @@ export function StockLineChart({ points, width }: StockLineChartProps) {
         noOfSections={4}
         xAxisColor={colors.chartGrid}
         xAxisThickness={1}
-        xAxisLabelTexts={xAxisLabelTexts}
-        xAxisLabelsHeight={22}
-        xAxisTextNumberOfLines={1}
-        xAxisLabelTextStyle={styles.axisLabel}
+        xAxisLabelsHeight={0}
         pointerConfig={pointerConfig}
+      />
+      <ChartXAxis
+        ticks={xAxisTicks}
+        pointCount={points.length}
+        plotWidth={plotWidth}
       />
     </View>
   );
@@ -99,12 +107,6 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     height: CHART_HEIGHT,
-  },
-  axisLabel: {
-    color: colors.chartAxis,
-    fontSize: 11,
-    fontFamily: typography.chartAxis.fontFamily,
-    textAlign: "center",
   },
   yAxisLabel: {
     color: colors.chartAxis,

@@ -8,7 +8,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "test": "turbo run test",
-    "dev:gateway": "turbo run dev --filter=@stocked/gateway"
+    "dev:gateway": "turbo run dev --filter=@stocked/gateway",
+    "dev:worker": "turbo run dev --filter=@stocked/alerts-worker",
+    "dev:backend": "turbo run dev --filter=@stocked/gateway --filter=@stocked/alerts-worker"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
@@ -18,5 +20,10 @@
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=18"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "0.28.0"
+    }
   }
 }

@@ -12,6 +12,7 @@ import { SessionGate } from "@/components/SessionGate";
 import { SessionProvider, useSession } from "@/contexts/SessionContext";
 import { usePushMessaging } from "@/hooks/usePushMessaging";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { ToastProvider } from "@/providers/ToastProvider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,7 +52,9 @@ export default function RootLayout() {
   return (
     <SessionProvider>
       <QueryProvider>
-        <RootNavigation />
+        <ToastProvider>
+          <RootNavigation />
+        </ToastProvider>
       </QueryProvider>
     </SessionProvider>
   );

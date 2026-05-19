@@ -21,6 +21,15 @@ export class UsersRepository {
     });
   }
 
+  async findDeviceByPushTokenForUser(
+    userId: string,
+    pushToken: string,
+  ): Promise<Device | null> {
+    return prisma.device.findFirst({
+      where: { userId, pushToken },
+    });
+  }
+
   async createDevice(
     userId: string,
     platform: string,

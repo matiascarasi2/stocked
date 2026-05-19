@@ -55,7 +55,7 @@ classDiagram
 
 **Auth:** `User` → `Device` → `Session`. `Session.userId` is denormalized from `Device.userId` at creation so revocation does not require a join.
 
-**Alerts:** Scoped to the user (account-wide). A background job polls Finnhub, matches active `Alert` rows, then sends push notifications to all of the user's `Device` rows with a valid `pushToken`.
+**Alerts:** Scoped to the user (account-wide). The `@stocked/alerts-worker` service subscribes to Finnhub WebSocket trades for symbols with active alerts, detects price **crossings** against `minPrice` / `maxPrice`, then sends FCM push to all of the user's `Device` rows with a valid `pushToken`. The gateway notifies the worker when alerts are created or deactivated.
 
 | Original field | Model field | Notes |
 | --- | --- | --- |
@@ -94,7 +94,7 @@ Decisions and caveats to settle before implementing the schema.
 ### Operations
 
 - Clarify one active session per device (upsert on login) vs session history.
-- Finnhub quotes stay external; a worker polls prices and matches `Alert` rows. A `PriceSnapshot` cache table is optional later.
+- Finnhub WebSocket trades drive alert matching in `stocked-alerts-worker` (single long-lived connection). A `PriceSnapshot` cache table is optional later.
 
 ## Market data providers
 
@@ -103,7 +103,7 @@ Stocked does not use a single vendor for everything. The gateway splits responsi
 | Concern | Provider | Why |
 | --- | --- | --- |
 | Symbol search, US ticker list, stock metadata | [Finnhub](https://finnhub.io/) | Already integrated; free tier includes `/search`, `/stock/symbol`, and `/quote` for US symbols. |
-| Price alerts (current quote polling) | Finnhub | `/quote` fits alert matching without a paid market-data plan. |
+| Price alerts (real-time) | Finnhub | WebSocket trades in `stocked-alerts-worker`; gateway `/quote` for UI snapshots. |
 | Historical chart OHLCV (line charts) | [Financial Modeling Prep (FMP)](https://site.financialmodelingprep.com/) | Finnhub’s `/stock/candle` endpoint is **not** on the free plan ([official note](https://github.com/finnhubio/Finnhub-API/issues/546)); FMP’s free Basic tier includes daily end-of-day history via `historical-price-eod/full`. |
 
 The mobile app only talks to the gateway. API keys for Finnhub and FMP live in `stocked-be/apps/stocked-gateway/.env`, never in the client.

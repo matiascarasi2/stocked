@@ -5,6 +5,10 @@ node_modules
 .pnp
 .pnp.js
 
+# Firebase service account (alerts worker)
+firebase-service-account.json
+**/firebase-service-account.json
+
 # Local env files
 .env
 .env.local

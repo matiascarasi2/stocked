@@ -42,6 +42,7 @@ function createMockRepository(
     findUserByEmail: jest.fn(),
     createUser: jest.fn(),
     findDeviceForUser: jest.fn(),
+    findDeviceByPushTokenForUser: jest.fn(),
     createDevice: jest.fn(),
     updateDevice: jest.fn(),
     revokeSessionsForDevice: jest.fn(),
@@ -150,13 +151,14 @@ describe("UsersService", () => {
       expect(repository.createDevice).not.toHaveBeenCalled();
     });
 
-    it("creates device when deviceId is unknown", async () => {
+    it("creates device when deviceId is unknown and no pushToken", async () => {
       const passwordHash = await hashPassword(validInput.password);
       const repository = createMockRepository({
         findUserByEmail: jest
           .fn()
           .mockResolvedValue({ ...userFixture, passwordHash }),
         findDeviceForUser: jest.fn().mockResolvedValue(null),
+        findDeviceByPushTokenForUser: jest.fn().mockResolvedValue(null),
         createDevice: jest.fn().mockResolvedValue(deviceFixture),
         revokeSessionsForDevice: jest.fn().mockResolvedValue(undefined),
         createSession: jest.fn().mockResolvedValue(sessionFixture),
@@ -168,10 +170,80 @@ describe("UsersService", () => {
         deviceId: "unknown-device",
       });
 
+      expect(repository.findDeviceByPushTokenForUser).not.toHaveBeenCalled();
       expect(repository.createDevice).toHaveBeenCalledWith(
         userFixture.id,
         validInput.platform,
         undefined,
+      );
+    });
+
+    it("reuses device when pushToken matches and deviceId is unknown", async () => {
+      const passwordHash = await hashPassword(validInput.password);
+      const pushToken = "fcm-token-existing";
+      const existingDevice = { ...deviceFixture, pushToken };
+      const updatedDevice = { ...existingDevice, lastSeenAt: new Date() };
+      const repository = createMockRepository({
+        findUserByEmail: jest
+          .fn()
+          .mockResolvedValue({ ...userFixture, passwordHash }),
+        findDeviceForUser: jest.fn().mockResolvedValue(null),
+        findDeviceByPushTokenForUser: jest
+          .fn()
+          .mockResolvedValue(existingDevice),
+        updateDevice: jest.fn().mockResolvedValue(updatedDevice),
+        revokeSessionsForDevice: jest.fn().mockResolvedValue(undefined),
+        createSession: jest.fn().mockResolvedValue(sessionFixture),
+      });
+      const service = new UsersService(repository);
+
+      const result = await service.signIn({
+        ...validInput,
+        deviceId: "unknown-device",
+        pushToken,
+      });
+
+      expect(repository.findDeviceByPushTokenForUser).toHaveBeenCalledWith(
+        userFixture.id,
+        pushToken,
+      );
+      expect(repository.updateDevice).toHaveBeenCalledWith(
+        existingDevice.id,
+        pushToken,
+      );
+      expect(repository.createDevice).not.toHaveBeenCalled();
+      expect(result.device.id).toBe(existingDevice.id);
+    });
+
+    it("creates device when deviceId and pushToken are unknown", async () => {
+      const passwordHash = await hashPassword(validInput.password);
+      const pushToken = "fcm-token-new";
+      const repository = createMockRepository({
+        findUserByEmail: jest
+          .fn()
+          .mockResolvedValue({ ...userFixture, passwordHash }),
+        findDeviceForUser: jest.fn().mockResolvedValue(null),
+        findDeviceByPushTokenForUser: jest.fn().mockResolvedValue(null),
+        createDevice: jest.fn().mockResolvedValue(deviceFixture),
+        revokeSessionsForDevice: jest.fn().mockResolvedValue(undefined),
+        createSession: jest.fn().mockResolvedValue(sessionFixture),
+      });
+      const service = new UsersService(repository);
+
+      await service.signIn({
+        ...validInput,
+        deviceId: "unknown-device",
+        pushToken,
+      });
+
+      expect(repository.findDeviceByPushTokenForUser).toHaveBeenCalledWith(
+        userFixture.id,
+        pushToken,
+      );
+      expect(repository.createDevice).toHaveBeenCalledWith(
+        userFixture.id,
+        validInput.platform,
+        pushToken,
       );
     });
   });

@@ -15,4 +15,9 @@ export const env = {
   refreshTokenTtlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30),
   finnhubApiKey: requireEnv("FINNHUB_API_KEY", process.env.FINNHUB_API_KEY),
   fmpApiKey: requireEnv("FMP_API_KEY", process.env.FMP_API_KEY),
+  alertsWorkerUrl: process.env.ALERTS_WORKER_URL ?? "http://localhost:3001",
+  alertsWorkerInternalSecret: requireEnv(
+    "ALERTS_WORKER_INTERNAL_SECRET",
+    process.env.ALERTS_WORKER_INTERNAL_SECRET,
+  ),
 };

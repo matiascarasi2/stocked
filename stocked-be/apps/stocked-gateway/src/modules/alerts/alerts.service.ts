@@ -1,3 +1,4 @@
+import { notifyAlertsWorkerSymbol } from "../../lib/alerts-worker.js";
 import { NotFoundError as StocksNotFoundError } from "../stocks/stocks.errors.js";
 import { StocksService } from "../stocks/stocks.service.js";
 import { NotFoundError, ValidationError } from "./alerts.errors.js";
@@ -42,6 +43,7 @@ export class AlertsService {
       maxPrice: input.maxPrice,
     });
 
+    notifyAlertsWorkerSymbol(alert.stockSymbol);
     return toAlertDto(alert);
   }
 
@@ -67,11 +69,15 @@ export class AlertsService {
     validatePriceBounds(mergedMin, mergedMax);
 
     const alert = await this.repository.update(id, userId, input);
+    if (input.isActive !== undefined) {
+      notifyAlertsWorkerSymbol(alert.stockSymbol);
+    }
     return toAlertDto(alert);
   }
 
   async deleteAlert(userId: string, id: string): Promise<AlertDto> {
     const alert = await this.repository.softDelete(id, userId);
+    notifyAlertsWorkerSymbol(alert.stockSymbol);
     return toAlertDto(alert);
   }
 

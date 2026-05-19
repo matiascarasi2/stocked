@@ -56,22 +56,7 @@ export class UsersService {
       throw new UnauthorizedError("Invalid email or password");
     }
 
-    let device =
-      input.deviceId &&
-      (await this.repository.findDeviceForUser(input.deviceId, user.id));
-
-    if (device) {
-      device = await this.repository.updateDevice(
-        device.id,
-        input.pushToken,
-      );
-    } else {
-      device = await this.repository.createDevice(
-        user.id,
-        input.platform,
-        input.pushToken,
-      );
-    }
+    const device = await this.resolveDeviceForSignIn(user.id, input);
 
     return this.issueTokensForDevice(user, device);
   }
@@ -114,6 +99,37 @@ export class UsersService {
     if (!deleted) {
       throw new UnauthorizedError("Device not found");
     }
+  }
+
+  private async resolveDeviceForSignIn(
+    userId: string,
+    input: RegisterSignInInput,
+  ): Promise<{ id: string; platform: string }> {
+    if (input.deviceId) {
+      const device = await this.repository.findDeviceForUser(
+        input.deviceId,
+        userId,
+      );
+      if (device) {
+        return this.repository.updateDevice(device.id, input.pushToken);
+      }
+    }
+
+    if (input.pushToken) {
+      const device = await this.repository.findDeviceByPushTokenForUser(
+        userId,
+        input.pushToken,
+      );
+      if (device) {
+        return this.repository.updateDevice(device.id, input.pushToken);
+      }
+    }
+
+    return this.repository.createDevice(
+      userId,
+      input.platform,
+      input.pushToken,
+    );
   }
 
   private async issueTokensForDevice(

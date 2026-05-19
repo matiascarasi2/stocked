@@ -41,7 +41,8 @@ Returns `503` if the database is unreachable.
 
 | Data | Provider | Endpoints (examples) |
 | --- | --- | --- |
-| Search, US symbols, quotes | Finnhub | `/stocks?q=…`, `/stocks/:symbol`, `/stocks/popular`, `/stocks/watched`, alert polling via `/quote` |
+| Search, US symbols, quotes | Finnhub | `/stocks?q=…`, `/stocks/:symbol`, `/stocks/popular`, `/stocks/watched` |
+| Price alerts | Alerts worker | WebSocket trades + FCM (see [alerts worker README](../stocked-alerts-worker/README.md)) |
 | Chart history (daily OHLCV) | FMP | `/stocks/:symbol/chart` |
 
 **Finnhub** is a good fit for symbol discovery and snapshot quotes on the free plan. Its **`/stock/candle` API is not available on the free tier**—requests return “You don't have access to this resource” ([Finnhub #546](https://github.com/finnhubio/Finnhub-API/issues/546)); paid market-data plans start around $50/month.

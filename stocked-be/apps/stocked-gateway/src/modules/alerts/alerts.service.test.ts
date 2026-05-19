@@ -1,4 +1,8 @@
 import { describe, expect, it, jest } from "@jest/globals";
+
+jest.mock("../../lib/alerts-worker.js", () => ({
+  notifyAlertsWorkerSymbol: jest.fn(),
+}));
 import type { Alert } from "@stocked/schema";
 import { NotFoundError as StocksNotFoundError } from "../stocks/stocks.errors.js";
 import type { StocksService } from "../stocks/stocks.service.js";

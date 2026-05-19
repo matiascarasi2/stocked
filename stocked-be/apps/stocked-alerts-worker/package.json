@@ -1,31 +1,30 @@
 {
-  "name": "@stocked/gateway",
+  "name": "@stocked/alerts-worker",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "dev:push": "tsx scripts/send-dev-push.ts",
+    "build": "node ../../node_modules/typescript/bin/tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
-    "check-types": "tsc --noEmit",
+    "check-types": "node ../../node_modules/typescript/bin/tsc --noEmit",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
   },
   "dependencies": {
-    "@stocked/alerts-worker-client": "workspace:*",
     "@stocked/schema": "workspace:*",
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
-    "jose": "^6.2.3"
+    "firebase-admin": "^13.4.0",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
-    "@types/cors": "^2.8.18",
+    "@jest/globals": "^30.4.1",
     "@types/express": "^5.0.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.15.21",
+    "@types/ws": "^8.18.1",
     "jest": "^30.4.2",
     "ts-jest": "^29.4.9",
     "tsx": "^4.19.4",

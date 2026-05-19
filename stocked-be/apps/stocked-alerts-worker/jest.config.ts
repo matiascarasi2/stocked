@@ -8,8 +8,6 @@ const config: Config = {
   testMatch: ["**/*.test.ts"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
-    "^@stocked/alerts-worker-client$":
-      "<rootDir>/../../packages/stocked-alerts-worker-client/src/index.ts",
   },
   setupFiles: ["<rootDir>/test/setup-env.ts"],
 };
