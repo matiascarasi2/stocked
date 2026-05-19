@@ -12,12 +12,13 @@ pnpm db:migrate
 pnpm db:generate
 ```
 
-Generated client is written to `generated/prisma/` (gitignored).
+Generated client is written to `src/generated/prisma/` (gitignored). The `build` script bundles the client with esbuild to `dist/index.js` for Node ESM runtime.
 
 ## Scripts
 
 | Script | Description |
 | --- | --- |
+| `pnpm build` | Generate Prisma client and bundle exports to `dist/` |
 | `pnpm db:migrate` | Create/apply migrations in dev |
 | `pnpm db:deploy` | Apply migrations in CI/production |
 | `pnpm db:generate` | Regenerate Prisma Client |
